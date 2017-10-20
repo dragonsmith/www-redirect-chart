@@ -1,0 +1,36 @@
+
+# domains to redirect to.
+domains: []
+# - example.com
+# - example2.com
+
+# How many copies of this app you need to run
+replicas: 1
+
+# Image for Nginx container which would do all our work
+nginx:
+  image:
+    url: nginx
+    tag: 1.13.5
+  resources: {}
+    # limits:
+    #   cpu: 200m
+    #   memory: 100Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 50Mi
+
+ingress:
+  enabled: true
+  tls: true
+  annotations:
+    ingress.kubernetes.io/proxy-body-size: 32m
+
+nodeSelector: {}
+  #key: value
+
+tolerations: []
+  #- key: "key"
+  #operator: "Equal|Exists"
+  #value: "value"
+  #effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name | trunc 53 }}-configmap
+  labels:
+    app: {{ .Release.Name | trunc 63 }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  default.conf: |
+    server {
+      listen 80;
+
+      {{- range $domain := .Values.domains }}
+      server_name ~^www\.(?<domain>{{ $domain | replace "." "\\." }})$;
+      {{- end }}
+
+      charset utf-8;
+
+      access_log /dev/stdout;
+      error_log /dev/stdout;
+
+      return 301 {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://$domain$request_uri;
+
+    }
+
+    # return 404 if an unknown domain to be spotted
+    server {
+      listen 80 default;
+
+      server_name localhost;
+
+      charset utf-8;
+
+      access_log /dev/stdout;
+      error_log /dev/stdout;
+
+      return 404;
+    }

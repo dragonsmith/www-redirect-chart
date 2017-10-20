@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name | trunc 63 }}
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+  {{- range $domain := .Values.domains }}
+  - hosts:
+    - www.{{ $domain }}
+    secretName: www.{{ $domain }}-tls
+  {{- end }}
+  {{- end }}
+  rules:
+  {{- range $domain := .Values.domains }}
+  - host: www.{{ $domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $.Release.Name | trunc 63 }}
+          servicePort: 80
+  {{- end }}
+{{- end }}
